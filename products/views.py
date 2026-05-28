@@ -15,3 +15,23 @@ class ProductList(APIView):
             return Response(product.data, status=status.HTTP_201_CREATED)
  
         return Response(product.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        products = Product.objects.all()
+        serializer = ProductSerializer(products, many=True, context={
+                                    'request': request})  # Pass request context
+        return Response({
+            "products": serializer.data
+        }, status=status.HTTP_200_OK)
+
+class ProductDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Product.objects.get(pk=pk)
+        except Product.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        product = self.get_object(pk)
+        serializer = ProductSerializer(product, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
