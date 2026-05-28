@@ -24,6 +24,9 @@ class ProductList(APIView):
         name = request.query_params.get('name')
         if name:
             products = products.filter(name__icontains=name)
+        location = request.query_params.get('location')
+        if location:
+            products = products.filter(location__icontains=location)
         serializer = ProductSerializer(products, many=True, context={
             'request': request})  # Pass request context
         return Response({
