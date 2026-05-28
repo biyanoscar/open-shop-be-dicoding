@@ -20,7 +20,7 @@ class ProductList(APIView):
         return Response(product.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
-        products = Product.objects.all()
+        products = Product.objects.filter(is_delete=False)
         name = request.query_params.get('name')
         if name:
             products = products.filter(name__icontains=name)
@@ -54,5 +54,6 @@ class ProductDetail(APIView):
 
     def delete(self, request, pk):
         product = self.get_object(pk)
-        product.delete()
+        product.is_delete = True
+        product.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
