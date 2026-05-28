@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from products.serializers import ProductSerializer
 from .models import Product
+from django.http import Http404
  
 class ProductList(APIView):
     def post(self, request):
@@ -35,3 +36,16 @@ class ProductDetail(APIView):
         product = self.get_object(pk)
         serializer = ProductSerializer(product, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request, pk):
+        product = self.get_object(pk)
+        serializer = ProductSerializer(product, data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        product = self.get_object(pk)
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
